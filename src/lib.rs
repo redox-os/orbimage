@@ -8,7 +8,7 @@ use std::fs::File;
 use std::io::Read;
 use std::path::Path;
 
-use orbclient::Color;
+use orbclient::{Color, Window};
 
 pub struct Image {
     w: u32,
@@ -73,6 +73,10 @@ impl Image {
 
     pub fn into_data(self) -> Box<[Color]> {
         self.data
+    }
+
+    pub fn draw(&self, window: &mut Window, x: i32, y: i32) {
+        window.image(x, y, self.w, self.h, &self.data);
     }
 }
 
