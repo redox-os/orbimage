@@ -70,6 +70,10 @@ impl Image {
     pub fn data(&self) -> &[Color] {
         &self.data
     }
+
+    pub fn into_data(self) -> Box<[Color]> {
+        self.data
+    }
 }
 
 fn parse_png(file_data: &[u8]) -> Result<Image, String> {
