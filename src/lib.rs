@@ -17,16 +17,19 @@ pub struct Image {
 }
 
 impl Image {
-    /// Create a new bitmap
+    /// Create a new image
     pub fn new(width: u32, height: u32) -> Self {
         Self::from_color(width, height, Color::rgb(0, 0, 0))
     }
-
+    
+    /// Create a new image filled whole with color
     pub fn from_color(width: u32, height: u32, color: Color) -> Self {
         Self::from_data(width, height, vec![color; width as usize * height as usize].into_boxed_slice())
     }
 
+    /// Create a new image from a boxed slice of colors
     pub fn from_data(width: u32, height: u32, data: Box<[Color]>) -> Self {
+        // TODO: check if size of data makes sense compared to width and height? maybe?
         Image {
             w: width,
             h: height,
@@ -34,6 +37,7 @@ impl Image {
         }
     }
 
+    /// Load an image from file path. Supports BMP and PNG
     pub fn from_path<P: AsRef<Path>>(path: P) -> Result<Self, String> {
         let mut file = try!(File::open(&path).map_err(|err| format!("failed to open image: {}", err)));
         let mut data: Vec<u8> = Vec::new();
@@ -52,7 +56,7 @@ impl Image {
         }
     }
 
-    /// Create a new empty bitmap
+    /// Create a new empty image
     pub fn default() -> Self {
         Self::new(0, 0)
     }
@@ -67,14 +71,17 @@ impl Image {
         self.h
     }
 
+    /// Return a reference to a slice of colors making up the image
     pub fn data(&self) -> &[Color] {
         &self.data
     }
 
+    /// Return a boxed slice of colors making up the image
     pub fn into_data(self) -> Box<[Color]> {
         self.data
     }
 
+    /// Draw the image on a window
     pub fn draw(&self, window: &mut Window, x: i32, y: i32) {
         window.image(x, y, self.w, self.h, &self.data);
     }
