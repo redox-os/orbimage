@@ -10,6 +10,29 @@ use std::path::Path;
 
 use orbclient::{Color, Window};
 
+pub struct ImageRoi<'a> {
+    x: u32,
+    y: u32,
+    w: u32,
+    h: u32,
+    image: &'a Image
+}
+
+impl<'a> ImageRoi<'a> {
+    /// Draw the ROI on a window
+    pub fn draw(&self, window: &mut Window, x: i32, mut y: i32) {
+        let stride = self.image.w;
+        let mut offset = (self.y * stride + self.x) as usize;
+        let end = ((self.y + self.h) * stride + self.x + self.w) as usize;
+        while offset < end {
+            let next_offset = offset + stride as usize;
+            window.image(x, y, self.w, 1, &self.image.data[offset..next_offset]);
+            offset = next_offset;
+            y += 1;
+        }
+    }
+}
+
 pub struct Image {
     w: u32,
     h: u32,
@@ -21,7 +44,7 @@ impl Image {
     pub fn new(width: u32, height: u32) -> Self {
         Self::from_color(width, height, Color::rgb(0, 0, 0))
     }
-    
+
     /// Create a new image filled whole with color
     pub fn from_color(width: u32, height: u32, color: Color) -> Self {
         Self::from_data(width, height, vec![color; width as usize * height as usize].into_boxed_slice())
@@ -69,6 +92,18 @@ impl Image {
     /// Get the height of the image in pixels
     pub fn height(&self) -> u32 {
         self.h
+    }
+
+    /// Get a piece of the image
+    // TODO: bounds check
+    pub fn roi<'a>(&'a self, x: u32, y: u32, w: u32, h: u32) -> ImageRoi<'a> {
+        ImageRoi {
+            x: x,
+            y: y,
+            w: w,
+            h: h,
+            image: self
+        }
     }
 
     /// Return a reference to a slice of colors making up the image
