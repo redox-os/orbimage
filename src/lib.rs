@@ -97,12 +97,22 @@ impl Image {
     /// Get a piece of the image
     // TODO: bounds check
     pub fn roi<'a>(&'a self, x: u32, y: u32, w: u32, h: u32) -> ImageRoi<'a> {
-        ImageRoi {
-            x: x,
-            y: y,
-            w: w,
-            h: h,
-            image: self
+        if x + w <= self.width() && y + h <= self.height() {
+            ImageRoi {
+                x: x,
+                y: y,
+                w: w,
+                h: h,
+                image: self
+            }
+        } else {
+            ImageRoi {
+                x: 0,
+                y: 0,
+                w: 0,
+                h: 0,
+                image: self
+            }
         }
     }
 
