@@ -4,6 +4,7 @@
 extern crate orbclient;
 extern crate png;
 
+use std::cmp;
 use std::fs::File;
 use std::io::Read;
 use std::path::Path;
@@ -26,7 +27,7 @@ impl<'a> ImageRoi<'a> {
         let end = ((self.y + self.h) * stride + self.x + self.w) as usize;
         while offset < end {
             let next_offset = offset + stride as usize;
-            window.image(x, y, self.w, 1, &self.image.data[offset..next_offset]);
+            window.image(x, y, self.w, 1, &self.image.data[offset..]);
             offset = next_offset;
             y += 1;
         }
@@ -97,22 +98,17 @@ impl Image {
     /// Get a piece of the image
     // TODO: bounds check
     pub fn roi<'a>(&'a self, x: u32, y: u32, w: u32, h: u32) -> ImageRoi<'a> {
-        if x + w < self.width() && y + h < self.height() {
-            ImageRoi {
-                x: x,
-                y: y,
-                w: w,
-                h: h,
-                image: self
-            }
-        } else {
-            ImageRoi {
-                x: 0,
-                y: 0,
-                w: 0,
-                h: 0,
-                image: self
-            }
+        let x1 = cmp::min(x, self.width());
+        let y1 = cmp::min(y, self.height());
+        let x2 = cmp::max(x1, cmp::min(x + w, self.width()));
+        let y2 = cmp::max(y1, cmp::min(y + h, self.height()));
+
+        ImageRoi {
+            x: x1,
+            y: y1,
+            w: x2 - x1,
+            h: y2 - y1,
+            image: self
         }
     }
 
