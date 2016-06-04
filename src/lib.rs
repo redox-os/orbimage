@@ -24,8 +24,8 @@ impl<'a> ImageRoi<'a> {
     pub fn draw(&self, window: &mut Window, x: i32, mut y: i32) {
         let stride = self.image.w;
         let mut offset = (self.y * stride + self.x) as usize;
-        let end = cmp::min(((self.y + self.h) * stride + self.x + self.w) as usize, self.image.data.len());
-        while offset < end {
+        let last_offset = cmp::min(((self.y + self.h) * stride + self.x) as usize, self.image.data.len());
+        while offset < last_offset {
             let next_offset = offset + stride as usize;
             window.image(x, y, self.w, 1, &self.image.data[offset..]);
             offset = next_offset;
@@ -96,7 +96,6 @@ impl Image {
     }
 
     /// Get a piece of the image
-    // TODO: bounds check
     pub fn roi<'a>(&'a self, x: u32, y: u32, w: u32, h: u32) -> ImageRoi<'a> {
         let x1 = cmp::min(x, self.width());
         let y1 = cmp::min(y, self.height());
