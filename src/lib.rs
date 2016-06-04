@@ -24,7 +24,7 @@ impl<'a> ImageRoi<'a> {
     pub fn draw(&self, window: &mut Window, x: i32, mut y: i32) {
         let stride = self.image.w;
         let mut offset = (self.y * stride + self.x) as usize;
-        let end = ((self.y + self.h) * stride + self.x + self.w) as usize;
+        let end = cmp::min(((self.y + self.h) * stride + self.x + self.w) as usize, self.image.data.len());
         while offset < end {
             let next_offset = offset + stride as usize;
             window.image(x, y, self.w, 1, &self.image.data[offset..]);
