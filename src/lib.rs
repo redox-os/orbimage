@@ -53,11 +53,16 @@ impl Image {
 
     /// Create a new image from a boxed slice of colors
     pub fn from_data(width: u32, height: u32, data: Box<[Color]>) -> Self {
-        // TODO: check if size of data makes sense compared to width and height? maybe?
+        // Converting to a vec because it has .resize()
+        // Ugly pink chosen to make people notice something's gone wrong with their code
+        // I've chosen this over making return type a Result<Self, &str>
+        let mut data_vec: Vec<Color> = data.into_vec();
+        data_vec.resize((width * height) as usize, Color::rgb(255, 0, 255));
+
         Image {
             w: width,
             h: height,
-            data: data,
+            data: data_vec.into_boxed_slice(),
         }
     }
 
