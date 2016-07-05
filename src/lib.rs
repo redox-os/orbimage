@@ -48,22 +48,20 @@ impl Image {
 
     /// Create a new image filled whole with color
     pub fn from_color(width: u32, height: u32, color: Color) -> Self {
-        Self::from_data(width, height, vec![color; width as usize * height as usize].into_boxed_slice())
+        Self::from_data(width, height, vec![color; width as usize * height as usize].into_boxed_slice()).unwrap()
     }
 
     /// Create a new image from a boxed slice of colors
-    pub fn from_data(width: u32, height: u32, data: Box<[Color]>) -> Self {
-        // Converting to a vec because it has .resize()
-        // Ugly pink chosen to make people notice something's gone wrong with their code
-        // I've chosen this over making return type a Result<Self, &str>
-        let mut data_vec: Vec<Color> = data.into_vec();
-        data_vec.resize((width * height) as usize, Color::rgb(255, 0, 255));
+    pub fn from_data(width: u32, height: u32, data: Box<[Color]>) -> Result<Self, String> {
+        if (width * height) as usize != data.len() {
+            return Err("not enough or too much data given compared to width and height".to_string())
+        }
 
-        Image {
+        Ok(Image {
             w: width,
             h: height,
-            data: data_vec.into_boxed_slice(),
-        }
+            data: data,
+        })
     }
 
     /// Load an image from file path. Supports BMP and PNG
@@ -151,7 +149,8 @@ fn parse_png(file_data: &[u8]) -> Result<Image, String> {
         }
     }
 
-    Ok(Image::from_data(png_image.width, png_image.height, data.into_boxed_slice()))
+    // Not Ok(Image::from...) for same reason as below in parse_bmp.
+    Image::from_data(png_image.width, png_image.height, data.into_boxed_slice())
 }
 
 fn parse_bmp(file_data: &[u8]) -> Result<Image, String> {
@@ -234,7 +233,10 @@ fn parse_bmp(file_data: &[u8]) -> Result<Image, String> {
             }
         }
 
-        Ok(Image::from_data(width, height, data.into_boxed_slice()))
+        // This is not Ok(Image::from...) because Image started to return an Option
+        // It shouldn't ever return an Err in this case, unless there's an error somewhere
+        // above
+        Image::from_data(width, height, data.into_boxed_slice())
     }else{
         Err("BMP: invalid signature".to_string())
     }
