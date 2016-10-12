@@ -145,13 +145,13 @@ fn parse_png(file_data: &[u8]) -> Result<Image, String> {
     let mut data = Vec::with_capacity(width as usize * height as usize);
 
     match info.color_type {
-        RGBA => {
+        RGB => {
             for rgb in img_data.chunks(3) {
                 let r = rgb[0]; let g = rgb[1]; let b = rgb[2];
                 data.push(Color::rgb(r, g, b));
             }
         },
-        RGB => {
+        RGBA => {
             for rgba in img_data.chunks(4) {
                 let r = rgba[0]; let g = rgba[1]; let b = rgba[2]; let a = rgba[3];
                 data.push(Color::rgba(r, g, b, a));
