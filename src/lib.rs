@@ -133,26 +133,46 @@ impl Image {
 
 #[cfg(feature="png")]
 fn parse_png(file_data: &[u8]) -> Result<Image, String> {
-    let png_image = try!(png::load_png_from_memory(file_data));
+    use png::ColorType::*;
+    let decoder = png::Decoder::new(file_data);
+    let (info, mut reader) = try!(decoder.read_info().map_err(|err| format!("PNG read info error: {}", err)));
+    let mut img_data = vec![0; info.buffer_size()];
+    try!(reader.next_frame(&mut img_data).map_err(|err| format!("PNG read data error: {}", err)));
 
-    let mut data = Vec::new();
-    match png_image.pixels {
-        png::PixelsByColorType::K8(pixels) => for k in pixels {
-            data.push(Color::rgb(k, k, k));
+    let width = info.width;
+    let height = info.height;
+
+    let mut data = Vec::with_capacity(width as usize * height as usize);
+
+    match info.color_type {
+        RGBA => {
+            for rgb in img_data.chunks(3) {
+                let r = rgb[0]; let g = rgb[1]; let b = rgb[2];
+                data.push(Color::rgb(r, g, b));
+            }
         },
-        png::PixelsByColorType::KA8(pixels) => for ka in pixels.chunks(2) {
-            data.push(Color::rgba(ka[0], ka[0], ka[0], ka[1]));
+        RGB => {
+            for rgba in img_data.chunks(4) {
+                let r = rgba[0]; let g = rgba[1]; let b = rgba[2]; let a = rgba[3];
+                data.push(Color::rgba(r, g, b, a));
+            }
         },
-        png::PixelsByColorType::RGB8(pixels) => for rgb in pixels.chunks(3) {
-            data.push(Color::rgb(rgb[0], rgb[1], rgb[2]));
+        Grayscale => {
+            for g in img_data {
+                data.push(Color::rgb(g, g, g));
+            }
         },
-        png::PixelsByColorType::RGBA8(pixels) => for rgba in pixels.chunks(4) {
-            data.push(Color::rgba(rgba[0], rgba[1], rgba[2], rgba[3]));
-        }
-    }
+        GrayscaleAlpha => {
+            for ga in img_data.chunks(2) {
+                let g = ga[0]; let a = ga[1];
+                data.push(Color::rgba(g, g, g, a));
+            }
+        },
+        _ => return Err("Unknown PNG type".to_string())
+    };
 
     // Not Ok(Image::from...) for same reason as below in parse_bmp.
-    Image::from_data(png_image.width, png_image.height, data.into_boxed_slice())
+    Image::from_data(width, height, data.into_boxed_slice())
 }
 
 #[cfg(not(feature="png"))]

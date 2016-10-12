@@ -2,14 +2,14 @@
 name = "orbimage"
 description = "Orbital image features"
 repository = "https://github.com/redox-os/orbimage"
-version = "0.1.1"
+version = "0.1.2"
 license-file = "LICENSE"
 readme = "README.md"
 authors = ["Jeremy Soller <jackpot51@gmail.com>"]
 
 [dependencies]
 orbclient = "0.1"
-png = { git = "https://github.com/servo/rust-png.git", optional = true }
+png = { version="0.5", optional = true }
 
 [features]
 default = ["png"]
