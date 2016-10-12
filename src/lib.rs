@@ -2,6 +2,7 @@
 #![crate_type="lib"]
 
 extern crate orbclient;
+#[cfg(feature="png")]
 extern crate png;
 
 use std::cmp;
@@ -130,6 +131,7 @@ impl Image {
     }
 }
 
+#[cfg(feature="png")]
 fn parse_png(file_data: &[u8]) -> Result<Image, String> {
     let png_image = try!(png::load_png_from_memory(file_data));
 
@@ -151,6 +153,11 @@ fn parse_png(file_data: &[u8]) -> Result<Image, String> {
 
     // Not Ok(Image::from...) for same reason as below in parse_bmp.
     Image::from_data(png_image.width, png_image.height, data.into_boxed_slice())
+}
+
+#[cfg(not(feature="png"))]
+fn parse_png(_file_data: &[u8]) -> Result<Image, String> {
+    return Err("PNG support is not compiled in".to_string());
 }
 
 fn parse_bmp(file_data: &[u8]) -> Result<Image, String> {

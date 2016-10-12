@@ -9,4 +9,7 @@ authors = ["Jeremy Soller <jackpot51@gmail.com>"]
 
 [dependencies]
 orbclient = "0.1"
-png = { git="https://github.com/servo/rust-png.git" }
+png = { git = "https://github.com/servo/rust-png.git", optional = true }
+
+[features]
+default = ["png"]
