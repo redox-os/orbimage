@@ -132,7 +132,7 @@ impl Image {
 }
 
 #[cfg(feature="png")]
-fn parse_png(file_data: &[u8]) -> Result<Image, String> {
+pub fn parse_png(file_data: &[u8]) -> Result<Image, String> {
     use png::ColorType::*;
     let decoder = png::Decoder::new(file_data);
     let (info, mut reader) = try!(decoder.read_info().map_err(|err| format!("PNG read info error: {}", err)));
@@ -176,11 +176,11 @@ fn parse_png(file_data: &[u8]) -> Result<Image, String> {
 }
 
 #[cfg(not(feature="png"))]
-fn parse_png(_file_data: &[u8]) -> Result<Image, String> {
+pub fn parse_png(_file_data: &[u8]) -> Result<Image, String> {
     return Err("PNG support is not compiled in".to_string());
 }
 
-fn parse_bmp(file_data: &[u8]) -> Result<Image, String> {
+pub fn parse_bmp(file_data: &[u8]) -> Result<Image, String> {
     let get = |i: usize| -> u8 {
         match file_data.get(i) {
             Some(byte) => *byte,
