@@ -2,7 +2,7 @@
 name = "orbimage"
 description = "Orbital image features"
 repository = "https://github.com/redox-os/orbimage"
-version = "0.1.5"
+version = "0.1.6"
 license-file = "LICENSE"
 readme = "README.md"
 authors = ["Jeremy Soller <jackpot51@gmail.com>"]
@@ -10,10 +10,17 @@ authors = ["Jeremy Soller <jackpot51@gmail.com>"]
 [dependencies]
 orbclient = "0.1"
 
+[dependencies.jpeg-decoder]
+version = "0.1"
+optional = true
+default-features = false
+
 [dependencies.png]
 version = "0.5"
 optional = true
 default-features = false
 
 [features]
-default = ["png"]
+default = ["bmp", "jpg", "png"]
+bmp = []
+jpg = ["jpeg-decoder"]
