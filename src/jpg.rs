@@ -25,20 +25,17 @@ pub fn parse(file_data: &[u8]) -> Result<Image, String> {
 
     match info.pixel_format {
         L8 => {
-            println!("L8");
             for g in img_data {
                 data.push(Color::rgb(g, g, g));
             }
         },
         RGB24 => {
-            println!("RGB24");
             for rgb in img_data.chunks(3) {
                 let r = rgb[0]; let g = rgb[1]; let b = rgb[2];
                 data.push(Color::rgb(r, g, b));
             }
         },
         CMYK32 => {
-            println!("CMYK");
             for cmyk in img_data.chunks(4) {
                 let c = cmyk[0] as f32 / 255.0;
                 let m = cmyk[1] as f32 / 255.0;
