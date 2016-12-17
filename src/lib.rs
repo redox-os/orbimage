@@ -8,7 +8,7 @@ use std::fs::File;
 use std::io::Read;
 use std::path::Path;
 
-use orbclient::{Color, Window};
+use orbclient::{Color, Renderer, Window};
 
 pub use bmp::parse as parse_bmp;
 pub use jpg::parse as parse_jpg;
