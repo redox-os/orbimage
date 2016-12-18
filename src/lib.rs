@@ -8,7 +8,7 @@ use std::fs::File;
 use std::io::Read;
 use std::path::Path;
 
-use orbclient::{Color, Renderer, Window};
+use orbclient::{Color, Renderer};
 
 pub use bmp::parse as parse_bmp;
 pub use jpg::parse as parse_jpg;
@@ -28,13 +28,13 @@ pub struct ImageRoi<'a> {
 
 impl<'a> ImageRoi<'a> {
     /// Draw the ROI on a window
-    pub fn draw(&self, window: &mut Window, x: i32, mut y: i32) {
+    pub fn draw(&self, renderer: &mut Renderer, x: i32, mut y: i32) {
         let stride = self.image.w;
         let mut offset = (self.y * stride + self.x) as usize;
         let last_offset = cmp::min(((self.y + self.h) * stride + self.x) as usize, self.image.data.len());
         while offset < last_offset {
             let next_offset = offset + stride as usize;
-            window.image(x, y, self.w, 1, &self.image.data[offset..]);
+            renderer.image(x, y, self.w, 1, &self.image.data[offset..]);
             offset = next_offset;
             y += 1;
         }
@@ -133,7 +133,7 @@ impl Image {
     }
 
     /// Draw the image on a window
-    pub fn draw(&self, window: &mut Window, x: i32, y: i32) {
-        window.image(x, y, self.w, self.h, &self.data);
+    pub fn draw(&self, renderer: &mut Renderer, x: i32, y: i32) {
+        renderer.image(x, y, self.w, self.h, &self.data);
     }
 }
