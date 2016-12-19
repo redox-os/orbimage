@@ -28,7 +28,7 @@ pub struct ImageRoi<'a> {
 
 impl<'a> ImageRoi<'a> {
     /// Draw the ROI on a window
-    pub fn draw(&self, renderer: &mut Renderer, x: i32, mut y: i32) {
+    pub fn draw<R: Renderer>(&self, renderer: &mut R, x: i32, mut y: i32) {
         let stride = self.image.w;
         let mut offset = (self.y * stride + self.x) as usize;
         let last_offset = cmp::min(((self.y + self.h) * stride + self.x) as usize, self.image.data.len());
@@ -133,7 +133,7 @@ impl Image {
     }
 
     /// Draw the image on a window
-    pub fn draw(&self, renderer: &mut Renderer, x: i32, y: i32) {
+    pub fn draw<R: Renderer>(&self, renderer: &mut R, x: i32, y: i32) {
         renderer.image(x, y, self.w, self.h, &self.data);
     }
 }
