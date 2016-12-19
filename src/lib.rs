@@ -96,16 +96,6 @@ impl Image {
         Self::new(0, 0)
     }
 
-    /// Get the width of the image in pixels
-    pub fn width(&self) -> u32 {
-        self.w
-    }
-
-    /// Get the height of the image in pixels
-    pub fn height(&self) -> u32 {
-        self.h
-    }
-
     /// Get a piece of the image
     pub fn roi<'a>(&'a self, x: u32, y: u32, w: u32, h: u32) -> ImageRoi<'a> {
         let x1 = cmp::min(x, self.width());
@@ -122,11 +112,6 @@ impl Image {
         }
     }
 
-    /// Return a reference to a slice of colors making up the image
-    pub fn data(&self) -> &[Color] {
-        &self.data
-    }
-
     /// Return a boxed slice of colors making up the image
     pub fn into_data(self) -> Box<[Color]> {
         self.data
@@ -135,5 +120,31 @@ impl Image {
     /// Draw the image on a window
     pub fn draw<R: Renderer>(&self, renderer: &mut R, x: i32, y: i32) {
         renderer.image(x, y, self.w, self.h, &self.data);
+    }
+}
+
+impl Renderer for Image {
+    /// Get the width of the image in pixels
+    fn width(&self) -> u32 {
+        self.w
+    }
+
+    /// Get the height of the image in pixels
+    fn height(&self) -> u32 {
+        self.h
+    }
+
+    /// Return a reference to a slice of colors making up the image
+    fn data(&self) -> &[Color] {
+        &self.data
+    }
+
+    /// Return a mutable reference to a slice of colors making up the image
+    fn data_mut(&mut self) -> &mut [Color] {
+        &mut self.data
+    }
+
+    fn sync(&mut self) -> bool {
+        true
     }
 }
