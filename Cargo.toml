@@ -9,6 +9,7 @@ authors = ["Jeremy Soller <jackpot51@gmail.com>"]
 
 [dependencies]
 orbclient = "0.2"
+resize = "0.2"
 
 [dependencies.jpeg-decoder]
 version = "0.1"

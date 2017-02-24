@@ -2,8 +2,9 @@
 #![crate_type="lib"]
 
 extern crate orbclient;
+extern crate resize;
 
-use std::cmp;
+use std::{cmp, slice};
 use std::fs::File;
 use std::io::Read;
 use std::path::Path;
@@ -13,6 +14,7 @@ use orbclient::{Color, Renderer};
 pub use bmp::parse as parse_bmp;
 pub use jpg::parse as parse_jpg;
 pub use png::parse as parse_png;
+pub use resize::Type as ResizeType;
 
 pub mod bmp;
 pub mod jpg;
@@ -94,6 +96,26 @@ impl Image {
     /// Create a new empty image
     pub fn default() -> Self {
         Self::new(0, 0)
+    }
+
+    // Get a resized version of the image
+    pub fn resize(&self, w: u32, h: u32, resize_type: ResizeType) -> Result<Self, String> {
+        let mut dst_color = vec![Color { data: 0 }; w as usize * h as usize].into_boxed_slice();
+
+        let src = unsafe {
+            slice::from_raw_parts(self.data.as_ptr() as *const u8, self.data.len() * 4)
+        };
+
+        let mut dst = unsafe {
+            slice::from_raw_parts_mut(dst_color.as_mut_ptr() as *mut u8, dst_color.len() * 4)
+        };
+
+        let mut resizer = resize::new(self.w as usize, self.h as usize,
+                                      w as usize, h as usize,
+                                      resize::Pixel::RGBA, resize_type);
+        resizer.resize(&src, &mut dst);
+
+        Image::from_data(w, h, dst_color)
     }
 
     /// Get a piece of the image
