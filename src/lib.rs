@@ -43,6 +43,7 @@ impl<'a> ImageRoi<'a> {
     }
 }
 
+#[derive(Clone)]
 pub struct Image {
     w: u32,
     h: u32,
