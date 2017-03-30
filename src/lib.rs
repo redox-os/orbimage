@@ -3,22 +3,15 @@
 
 extern crate orbclient;
 extern crate resize;
+extern crate image;
 
 use std::{cmp, slice};
-use std::fs::File;
-use std::io::Read;
 use std::path::Path;
+use std::error::Error;
 
 use orbclient::{Color, Renderer};
 
-pub use bmp::parse as parse_bmp;
-pub use jpg::parse as parse_jpg;
-pub use png::parse as parse_png;
 pub use resize::Type as ResizeType;
-
-pub mod bmp;
-pub mod jpg;
-pub mod png;
 
 pub struct ImageRoi<'a> {
     x: u32,
@@ -74,24 +67,19 @@ impl Image {
         })
     }
 
+    fn from_dynamic_image(d_img: image::ImageResult<image::DynamicImage>) -> Result<Self, String> {
+        let img = d_img.map_err(|e| e.description().to_string())?.to_rgba();
+        let data: Vec<_> = img.pixels().map(
+            |p| Color::rgba(p.data[0], p.data[1], p.data[2], p.data[3])
+            ).collect();
+        Self::from_data(img.width(), img.height(), data.into_boxed_slice())
+
+    }
+
     /// Load an image from file path. Supports BMP and PNG
     pub fn from_path<P: AsRef<Path>>(path: P) -> Result<Self, String> {
-        let mut file = try!(File::open(&path).map_err(|err| format!("failed to open image: {}", err)));
-        let mut data: Vec<u8> = Vec::new();
-        let _ = try!(file.read_to_end(&mut data).map_err(|err| format!("failed to read image: {}", err)));
-        //TODO: Use magic to match file instead of extension
-        match path.as_ref().extension() {
-            Some(extension_os) => match extension_os.to_str() {
-                Some(extension) => match extension.to_lowercase().as_str() {
-                    "bmp" => parse_bmp(&data),
-                    "jpg" | "jpeg" => parse_jpg(&data),
-                    "png" => parse_png(&data),
-                    other => Err(format!("unknown image extension: {}", other))
-                },
-                None => Err("image extension not valid unicode".to_string())
-            },
-            None => Err("no image extension".to_string())
-        }
+        let img = image::open(path);
+        Self::from_dynamic_image(img)
     }
 
     /// Create a new empty image
@@ -170,4 +158,19 @@ impl Renderer for Image {
     fn sync(&mut self) -> bool {
         true
     }
+}
+
+pub fn parse_png(data: &[u8]) -> Result<Image, String> {
+    let img = image::load_from_memory_with_format(data, image::ImageFormat::PNG);
+    Image::from_dynamic_image(img)
+}
+
+pub fn parse_bmp(data: &[u8]) -> Result<Image, String> {
+    let img = image::load_from_memory_with_format(data, image::ImageFormat::BMP);
+    Image::from_dynamic_image(img)
+}
+
+pub fn parse_jpg(data: &[u8]) -> Result<Image, String> {
+    let img = image::load_from_memory_with_format(data, image::ImageFormat::JPEG);
+    Image::from_dynamic_image(img)
 }
