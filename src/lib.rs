@@ -41,7 +41,7 @@ impl<'a> ImageRoi<'a> {
 pub struct Image {
     w: u32,
     h: u32,
-    /// Drawing mode
+    // Drawing mode
     mode: Cell<Mode>,
     data: Box<[Color]>
 }
