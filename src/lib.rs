@@ -8,8 +8,9 @@ extern crate image;
 use std::{cmp, slice};
 use std::path::Path;
 use std::error::Error;
+use std::cell::Cell;
 
-use orbclient::{Color, Renderer};
+use orbclient::{Color, Renderer, Mode};
 
 pub use resize::Type as ResizeType;
 
@@ -40,6 +41,8 @@ impl<'a> ImageRoi<'a> {
 pub struct Image {
     w: u32,
     h: u32,
+    /// Drawing mode
+    mode: Cell<Mode>,
     data: Box<[Color]>
 }
 
@@ -63,6 +66,7 @@ impl Image {
         Ok(Image {
             w: width,
             h: height,
+            mode: Cell::new(Mode::Blend),
             data: data,
         })
     }
@@ -157,6 +161,10 @@ impl Renderer for Image {
 
     fn sync(&mut self) -> bool {
         true
+    }
+    
+    fn mode(&self) -> &Cell<Mode> {
+    &self.mode
     }
 }
 
