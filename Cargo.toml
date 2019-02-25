@@ -2,12 +2,12 @@
 name = "orbimage"
 description = "Orbital image features"
 repository = "https://gitlab.redox-os.org/redox-os/orbimage"
-version = "0.1.16"
+version = "0.1.17"
 license-file = "LICENSE"
 readme = "README.md"
 authors = ["Jeremy Soller <jackpot51@gmail.com>"]
 
 [dependencies]
-orbclient = "0.3.13"
-image = "0.12"
-resize = "0.2"
+orbclient = "0.3.20"
+image = "0.21.0"
+resize = "0.3.0"
